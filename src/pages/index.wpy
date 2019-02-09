@@ -67,7 +67,11 @@
     </panel>
 
     <panel>
-      <view class="title" slot="title">测试组件Repeat</view>
+      <!-- <view class="title" slot="title">测试组件Repeat   kkkkkkkkk</view> -->
+      <view class="title" slot="title">12</view>
+
+      啦啦啦啦啦啦啦啦啦老板
+
       <!-- 当需要循环渲染WePY组件时(类似于通过wx:for循环渲染原生的wxml标签)，必须使用WePY定义的辅助标签<repeat> -->
       <repeat for="" index="index" item="item" key="key">
         <group :grouplist="item" :indexa="index"></group>
@@ -111,7 +115,6 @@
   // 声明一个Page页面实例 通过继承自wepy.page的类创建页面逻辑
   // 由于Page页面实际上继承自Component组件，即Page也是组件。除扩展了页面所特有的config配置以及特有的页面生命周期函数之外，其它属性和方法与Component一致
   export default class Index extends wepy.page {
-
     customData = {}  // 自定义数据
 
     customFunction () {}  // 自定义方法
@@ -125,7 +128,7 @@
       // num (newValue, oldValue) {
       //     console.log(`num value: ${oldValue} -> ${newValue}`)
       // }
-    };  
+    };
 
     // 页面配置  只在Page实例中存在的配置数据，对应于原生的page.json文件
     config = {
@@ -204,7 +207,7 @@
 // 声明计算属性
 // computed计算属性，是一个有返回值的函数，可直接被当作绑定数据来使用。因此类似于data属性，代码中可通过this.计算属性名来引用，模板中也可通过{{ 计算属性名 }}来绑定数据。
   // 需要注意的是，只要是组件中有任何数据发生了改变，那么所有计算属性就都会被重新计算。
-   computed = {
+    computed = {
       now () {
         return +new Date()
       }
@@ -269,7 +272,10 @@
         console.log('+++++++++++++++ index-emit args:', args)
         let $event = args[args.length - 1]
         console.log('+++++++++++++++ index-emit $event:', $event)
-        console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`)
+        console.log('+++++++++++++++ index-emit this.$name:', this.$name)
+        console.log('+++++++++++++++ index-emit $event.name:', $event.name)
+        console.log('+++++++++++++++ index-emit $event.source.$name:', $event.source.$name)
+        // console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`)
       }
         //   'some-event': (p1, p2, p3, $event) => {
         //        console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`);
@@ -278,9 +284,13 @@
 
 // 页面的生命周期函数 在Page和Component共用的生命周期函数
     onLoad() {
+      console.log('执行 onLoad!!!!!!!!!!!!!!! this.$parent:', this.$parent)
+      console.log('执行 onLoad!!!!!!!!!!!!!!! this.$parent.getUserInfo:', this.$parent.getUserInfo)
       let self = this
       // 在Page页面实例中，可以通过this.$parent来访问App实例。
+      // this.$parent.getUserInfo有这个方法, 但是没有成功执行, 奇怪了... ...
       this.$parent.getUserInfo(function (userInfo) {
+        console.log('执行 getUserInfo  !!!!!!!!!!!!!!! userInfo:', userInfo)
         if (userInfo) {
           self.userInfo = userInfo
         }
@@ -288,6 +298,7 @@
 
         self.setTimeoutTitle = '标题三秒后会被修改'
         setTimeout(() => {
+          console.log('定时器运行!!!!!!!!!!!!!!!')
           self.setTimeoutTitle = '到三秒了'
           self.$apply()
         }, 3000)

@@ -31,6 +31,7 @@
     <slot name="title">
       Title
     </slot>
+    子组件内容:
     <slot>
     </slot>
   </view>
