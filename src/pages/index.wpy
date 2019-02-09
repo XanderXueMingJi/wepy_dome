@@ -29,7 +29,7 @@
       <text class="info">{{setTimeoutTitle}}</text>
       <text class="info">{{mixin}}</text>
       <text class="info">{{mynum}}</text>
-      <text class="info">{{now}}</text>
+      <text class="info">nnnnnnnn  {{now}}</text>
       <text class="info">{{num}}</text>
       <text class="info">{{asyncNum}}</text>
       <text class="info">{{sumNum}}</text>
@@ -60,12 +60,15 @@
       <text class="testcounter">计数组件2: </text>
 
       <view class="counterview">
+        为什么点击计数组件2的加号按钮, 会触发计数组件1的index-emit????
+        <!-- 有.sync修饰符的props属性值，当在父组件中改变时，会同时改变子组件对应的值。 -->
         <counter2 :num.sync="mynum"></counter2>
       </view>
     </panel>
 
     <panel>
       <view class="title" slot="title">测试组件Repeat</view>
+      <!-- 当需要循环渲染WePY组件时(类似于通过wx:for循环渲染原生的wxml标签)，必须使用WePY定义的辅助标签<repeat> -->
       <repeat for="" index="index" item="item" key="key">
         <group :grouplist="item" :indexa="index"></group>
       </repeat>
@@ -105,21 +108,44 @@
     }
   })
 
+  // 声明一个Page页面实例 通过继承自wepy.page的类创建页面逻辑
+  // 由于Page页面实际上继承自Component组件，即Page也是组件。除扩展了页面所特有的config配置以及特有的页面生命周期函数之外，其它属性和方法与Component一致
   export default class Index extends wepy.page {
+
+    customData = {}  // 自定义数据
+
+    customFunction () {}  // 自定义方法
+
+    onShow () {}  // 只在Page中存在的页面生命周期函数
+
+// 声明数据watcher
+// 监听器函数名必须跟需要被监听的data对象中的属性num同名，
+  // 其参数中的newValue为属性改变后的新值，oldValue为改变前的旧值
+    watch = {
+      // num (newValue, oldValue) {
+      //     console.log(`num value: ${oldValue} -> ${newValue}`)
+      // }
+    };  
+
+    // 页面配置  只在Page实例中存在的配置数据，对应于原生的page.json文件
     config = {
+      // 导航栏标题文本
       navigationBarTitleText: 'test'
     }
+    // 声明页面中将要使用到的组件 声明组件，分配组件id为panel, counter1... ...
     components = {
       panel: Panel,
-      counter1: Counter,
-      counter2: Counter,
+      counter1: Counter, // 需要注意的是，WePY中的组件都是静态组件，是以组件ID作为唯一标识的，每一个ID都对应一个组件实例，当页面引入两个相同ID的组件时，这两个组件共用同一个实例与数据，当其中一个组件数据变化时，另外一个也会一起变化。
+      counter2: Counter, // 为两个相同组件的不同实例分配不同的组件ID，从而避免数据同步变化的问题
       list: List,
       group: Group,
       toast: Toast
     }
 
+// 声明页面所引用的Mixin实例 个人理解mixins就是定义一部分公共的方法或者计算属性,然后混入到各个组件中使用,方便管理与统一修改
     mixins = [testMixin]
 
+// 可用于页面模板绑定的数据 页面所需数据均需在这里声明，可用于模板数据绑定
     data = {
       mynum: 20,
       userInfo: {
@@ -175,12 +201,22 @@
       ]
     }
 
-    computed = {
+// 声明计算属性
+// computed计算属性，是一个有返回值的函数，可直接被当作绑定数据来使用。因此类似于data属性，代码中可通过this.计算属性名来引用，模板中也可通过{{ 计算属性名 }}来绑定数据。
+  // 需要注意的是，只要是组件中有任何数据发生了改变，那么所有计算属性就都会被重新计算。
+   computed = {
       now () {
         return +new Date()
       }
+      // 计算属性aPlus，在脚本中可通过this.aPlus来引用，在模板中可通过{{ aPlus }}来插值
+      // aPlus () {
+      //     return this.a + 1
+      // }
     }
 
+// 事件处理函数(集中保存在methods对象中)
+// 声明页面wxml中标签的事件处理函数。
+// 注意，此处只用于声明页面wxml中标签的bind、catch事件，自定义方法需以自定义方法的方式声明
     methods = {
       plus () {
         this.mynum++
@@ -226,15 +262,24 @@
       }
     }
 
+// WePY组件事件处理函数对象，存放响应组件之间通过$broadcast、$emit、$invoke所传递的事件的函数
+// 声明组件之间的事件处理函数
     events = {
       'index-emit': (...args) => {
+        console.log('+++++++++++++++ index-emit args:', args)
         let $event = args[args.length - 1]
+        console.log('+++++++++++++++ index-emit $event:', $event)
         console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`)
       }
+        //   'some-event': (p1, p2, p3, $event) => {
+        //        console.log(`${this.$name} receive ${$event.name} from ${$event.source.$name}`);
+        // }
     }
 
+// 页面的生命周期函数 在Page和Component共用的生命周期函数
     onLoad() {
       let self = this
+      // 在Page页面实例中，可以通过this.$parent来访问App实例。
       this.$parent.getUserInfo(function (userInfo) {
         if (userInfo) {
           self.userInfo = userInfo

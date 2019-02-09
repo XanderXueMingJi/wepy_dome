@@ -16,6 +16,7 @@
   import wepy from 'wepy'
   import GroupItem from './groupitem'
 
+  // 声明一个Component组件实例
   export default class Group extends wepy.component {
     props = {
       grouplist: {},
